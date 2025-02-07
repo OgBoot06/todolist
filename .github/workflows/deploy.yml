@@ -20,7 +20,7 @@ jobs:
       - name: Installation de Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22' # Remplacez par la version Node.js utilisée par votre projet
+          node-version: '22.13.0' # Remplacez par la version Node.js utilisée par votre projet
           cache: 'npm'
 
       - name: Installation des dépendances
@@ -33,7 +33,7 @@ jobs:
       # 4. Déployer sur Vercel
       - name: Déploiement
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}  # Correction du nom du secret
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} 
         run: |
           npm install -g vercel
           vercel --prod --token $VERCEL_TOKEN --yes
