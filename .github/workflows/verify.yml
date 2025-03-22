@@ -1,76 +1,39 @@
 name: Vérification d'une pull-request
 
-# Condition de déclenchement
 on:
-    pull_request:
-        types: [opened, synchronize, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
-# Premier job: exécution des tests
   test:
+    name: Exécution des tests unitaires
     runs-on: ubuntu-latest
 
     steps:
-      # Vérifier le code source
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Configurer Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22 # Remplacez par la version Node.js utilisée par votre projet
-
-      # Installer les dépendances
-      - name: Install dependencies
-        run: npm install
-
-      # Exécuter les tests
-      - name: Run tests
-        run: npm test
-
-  # Deuxième job: déploiement
-  deploy:
-    needs: test # Exécute le job de déploiement seulement si le job "test" réussi
-    runs-on: ubuntu-latest
-
-    # Etapes
-    steps:
-      # 1. Checkout du code source
       - name: Checkout du code
         uses: actions/checkout@v3
 
-      # 2. Installation de Node.js et des dépendances
       - name: Installation de Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22" # Remplacez par la version Node.js utilisée par votre projet
-          cache: "npm"
+          node-version: 22
 
       - name: Installation des dépendances
         run: npm install
 
-      # 3. Construire l'application React
-      - name: Build de l'application
-        run: npm run build
+      - name: Exécution des tests
+        run: npm test
 
-      # 4. Déployer sur Vercel
-      - name: Déploiement
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          npm install -g vercel
-          vercel --prod --token $VERCEL_TOKEN --yes
-          
-  # Troisième job: Scan qualité par SonarCloud
   sonarcloud:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
+    needs: test  # Ne s'exécute que si les tests réussissent
 
     steps:
-      - name: Checkout code
+      - name: Checkout du code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Nécessaire pour une analyse correcte
+          fetch-depth: 0
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
@@ -84,6 +47,3 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           npx sonarqube-scanner
-
-
-# A compléter
